@@ -45,9 +45,11 @@ def seq_reverse(f):
     return new_seq
 
 def seq_complement(f):
-    new_seq = f[:20]
     complement = {"A": "T", "C": "G", "G": "C", "T": "A"}
-    return "".join([complement[base] for base in new_seq])
+    new_seq = ""
+    for b in f:
+        new_seq += complement[b]
+    return new_seq
 
 def biggest_base(f):
     bases = ["A", "C", "G", "T"]
