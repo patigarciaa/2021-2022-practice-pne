@@ -1,4 +1,4 @@
-class seq:
+class seq: #los metodos no tienen por que return, cuando cambiamos atributos de la clase no hace falta return.
     """A class for representing sequences"""
 
     def __init__(self, strbases="NULL"):
