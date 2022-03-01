@@ -18,6 +18,12 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
 
     def len(self): #metodo que cuenta
         return len(self.strbases)
+    def len_null_error(self):
+        new_len = ""
+        if seq == "NULL" or seq == "ERROR":
+            len(new_len)
+        return len(new_len)
+
     def valid_sequence(self):
         valid = True
         i = 0
@@ -27,4 +33,17 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
                 valid = False
             i += 1
         return valid
+
+    def count_bases(self):
+        d = {"A": 0, "C": 0, "G": 0, "T": 0}
+        try:
+            for b in self.strbases:  # assuming que el seq esta bien
+                d[b] = d[b] + 1
+        except KeyError:
+            d =  {"A": 0, "C": 0, "G": 0, "T": 0}
+        return d
+
+
+
+
 
