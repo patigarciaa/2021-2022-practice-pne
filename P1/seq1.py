@@ -43,6 +43,25 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
             d =  {"A": 0, "C": 0, "G": 0, "T": 0}
         return d
 
+    def seq_reverse(self):
+        new_seq = []
+        if self.strbases == "ERROR" or self.strbases == "NULL":
+            new_seq = self.strbases
+        else:
+            for i in self.strbases:
+                new_seq = self.strbases[::-1]
+        return new_seq
+
+    def seq_complement(self):
+        complement = {"A": "T", "C": "G", "G": "C", "T": "A"}
+        new_seq1 = ""
+        if self.strbases == "ERROR" or self.strbases == "NULL":
+            new_seq1 = self.strbases
+        else:
+            for i in self.strbases:
+                new_seq1 += complement[i]
+        return new_seq1
+
 
 
 
