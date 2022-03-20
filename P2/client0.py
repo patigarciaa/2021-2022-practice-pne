@@ -32,3 +32,13 @@ class client:
 
         # Return the response
         return response
+
+    def gen(self,msg):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((self.ip, self.port))
+        msg_2 = str.encode(msg)
+        s.send(msg_2)
+        response = s.recv(2048).decode("utf-8")
+        s.close()
+        return response
+

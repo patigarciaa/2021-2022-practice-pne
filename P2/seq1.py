@@ -1,23 +1,23 @@
 class seq: #los metodos no tienen por que return, cuando cambiamos atributos de la clase no hace falta return.
     """A class for representing sequences"""
 
-    def __init__(self, strbases="NULL"):
-        self.strbases = strbases
-        if strbases == "NULL":
+    def __init__(self, bases="NULL"):
+        self.bases = bases
+        if bases == "NULL":
             print("Null sequence created")
-            self.strbases = "NULL"
+            self.bases = "NULL"
         elif not self.valid_sequence():
-            self.strbases = "ERROR"
+            self.bases = "ERROR"
             print("ERROR!")
         else:
-            self.strbases = strbases
+            self.bases = strbases
             print("New sequence created!")
 
     def __str__(self):#funcion que me printea como str mi sequencia
-        return self.strbases
+        return self.bases
 
     def len(self): #metodo que cuenta
-        return len(self.strbases)
+        return len(self.bases)
     def len_null_error(self):
         new_len = ""
         if seq == "NULL" or seq == "ERROR":
@@ -27,8 +27,8 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
     def valid_sequence(self):
         valid = True
         i = 0
-        while i < len(self.strbases) and valid:
-            c = self.strbases[i]
+        while i < len(self.bases) and valid:
+            c = self.bases[i]
             if c != "A" and c != "C" and c != "G" and c != "T":
                 valid = False
             i += 1
@@ -37,7 +37,7 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
     def count_bases(self):
         d = {"A": 0, "C": 0, "G": 0, "T": 0}
         try:
-            for b in self.strbases:  # assuming que el seq esta bien
+            for b in self.bases:  # assuming que el seq esta bien
                 d[b] = d[b] + 1
         except KeyError:
             d =  {"A": 0, "C": 0, "G": 0, "T": 0}
@@ -45,31 +45,31 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
 
     def seq_reverse(self):
         new_seq = []
-        if self.strbases == "ERROR" or self.strbases == "NULL":
-            new_seq = self.strbases
+        if self.bases == "ERROR" or self.bases == "NULL":
+            new_seq = self.bases
         else:
-            for i in self.strbases:
-                new_seq = self.strbases[::-1]
+            for i in self.bases:
+                new_seq = self.bases[::-1]
         return new_seq
 
     def seq_complement(self):
         complement = {"A": "T", "C": "G", "G": "C", "T": "A"}
         new_seq1 = ""
-        if self.strbases == "ERROR" or self.strbases == "NULL":
-            new_seq1 = self.strbases
+        if self.bases == "ERROR" or self.bases == "NULL":
+            new_seq1 = self.bases
         else:
-            for i in self.strbases:
+            for i in self.bases:
                 new_seq1 += complement[i]
         return new_seq1
 
-    def read_fasta(self,filename):
+    def read_fasta(self, filename):
         from pathlib import Path
         file_contents = Path(filename).read_text()
         lines = file_contents.splitlines()
         body = lines[1:]
-        self.strbases = ""
+        self.bases = ""
         for lines in body:
-            self.strbases += lines
+            self.bases += lines
 
 
 
