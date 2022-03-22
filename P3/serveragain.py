@@ -16,12 +16,14 @@ try:
 
     while True:
         print("Waiting for Clients to connect")
-        (cs, client_ip_port) = ls.accept()
+        (cs, client_ip_port) = ls.accept("utf-8")
         print("A client has connected to the server!")
+
         msg_raw = cs.recv(2048)
         msg = msg_raw.decode()
         print(f"Message received: {msg}")
         response = ""
+
         split = msg.split("")
         command = split[0]
 
@@ -31,26 +33,25 @@ try:
 
         elif command == "GET":
             arg = int(split[1])
-            gen = arg
+            gen = gen_list[arg]
             seq = seq()
-            file = os.path.join(".", "gene_list", f"{gen}")
+            file = os.path.join(".", "gene_list", f"{gen}")#para que entre a la folder etc para todos los sistems operativos
             seq.read_fasta(file)
             response = f"{seq}\n"
-            cs.send(response.encode())
+
 
         elif command == "INFO":
             arg = split[1]
-            sequence = seq(bases)
+            sequence = seq(arg)
             response = f"{sequence.porcentages()}"
 
         elif command == "COMP":
             arg = split[1]
-            sequence = seq(bases)
+            sequence = seq(arg)
             response = f"{sequence.seq_complement()}"
 
         elif command == "GENE":
             arg = split[1]
-            gen = gen_list[arg]
             seq = seq()
             file = os.path.join(".", "gene_list", f"{gen}")
             seq.read_fasta(file)
@@ -58,8 +59,10 @@ try:
 
         elif command == "REV":
             arg = split[1]
-            sequence = seq(bases)
+            sequence = seq(arg)
             response = f"{sequence.seq_reverse()}"
+
+        print(response)
 
         cs.send(response.encode())
         cs.close() #cs es el client socket
