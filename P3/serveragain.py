@@ -7,7 +7,7 @@ gen_list = ["ADA", "FRAT1", "U5", "FXN", "RNU6_269P"]
 
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-PORT = 8082
+PORT = 8083
 IP = "127.0.0.1"
 try:
     ls.bind((IP, PORT))
@@ -16,7 +16,7 @@ try:
 
     while True:
         print("Waiting for Clients to connect")
-        (cs, client_ip_port) = ls.accept("utf-8")
+        (cs, client_ip_port) = ls.accept()
         print("A client has connected to the server!")
 
         msg_raw = cs.recv(2048)
@@ -24,18 +24,18 @@ try:
         print(f"Message received: {msg}")
         response = ""
 
-        split = msg.split("")
+        split = msg.split(" ")
         command = split[0]
+        termcolor.cprint(f"{command} command", "green")
 
         if msg == "PING":
-            termcolor.cprint("Ping command", "green")
-            response = f"ok!"
+            response = f"ok!\n"
 
         elif command == "GET":
             arg = int(split[1])
             gen = gen_list[arg]
             seq = seq()
-            file = os.path.join(".", "gene_list", f"{gen}")#para que entre a la folder etc para todos los sistems operativos
+            file = os.path.join(".", "sequences", f"{gen}")#para que entre a la folder etc para todos los sistems operativos
             seq.read_fasta(file)
             response = f"{seq}\n"
 
@@ -53,7 +53,7 @@ try:
         elif command == "GENE":
             arg = split[1]
             seq = seq()
-            file = os.path.join(".", "gene_list", f"{gen}")
+            file = os.path.join(".", "sequences", f"{arg}")
             seq.read_fasta(file)
             response = f"{seq}\n"
 

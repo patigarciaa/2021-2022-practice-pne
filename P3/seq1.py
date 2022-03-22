@@ -73,7 +73,7 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
 
 
     def porcentages(self):
-        porcentage = f"sequence: {self.bases}\n"
+        porcentage = f"sequence: {self.count_bases()}\n"
         porcentage += f"total length: {self.len()}\n"
         for k, v in self.count_bases().items():
             porcentage += f"{k}: {v} ({(v * 100) / self.len()}%)\n"
