@@ -33,7 +33,8 @@ try:
             response = f"ok!\n"
 
         elif command == "GET":
-            arg = int(split_msg[1])
+            arg_2 = split_msg[1].replace("\n", "").strip()
+            arg = int(arg_2)
             gen = gen_list[arg]
             seq1 = seq() #llamar seq1 porque confunde la clase con la variable
             file = os.path.join(".", "sequences", f"{gen}")#para que entre a la folder etc para todos los sistems operativos
@@ -42,24 +43,24 @@ try:
 
 
         elif command == "INFO":
-            arg = split_msg[1]
+            arg = split_msg[1].replace("\n", "").strip()
             sequence = seq(arg)
-            response = f"{sequence.porcentages()}"
+            response = f"{sequence.porcentages()}\n"
 
         elif command == "COMP":
-            arg = split_msg[1]
+            arg = split_msg[1].replace("\n", "").strip()
             sequence = seq(arg)
             response = f"{sequence.seq_complement()}"
 
         elif command == "GENE":
-            arg = split_msg[1]
+            arg = split_msg[1].replace("\n", "").strip()
             seq1 = seq() #aqui lo mismo porque confunde la clase con la variable
             file = os.path.join(".", "sequences", f"{arg}")
             seq1.read_fasta(file)
             response = f"{seq1}\n"
 
         elif command == "REV":
-            arg = split_msg[1]
+            arg = split_msg[1].replace("\n", "").strip()
             sequence = seq(arg)
             response = f"{sequence.seq_reverse()}"
 
@@ -68,8 +69,8 @@ try:
         cs.send(response.encode())
         cs.close() #cs es el client socket
 
-except socket.error:
-    print(f"problems using port {PORT}. Do you have permission?")
+except Exception as e:
+    print(e)
 
 except KeyboardInterrupt:
     print("server stopped by the admin")
