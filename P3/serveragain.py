@@ -24,41 +24,42 @@ try:
         print(f"Message received: {msg}")
         response = ""
 
-        split = msg.split(" ")
-        command = split[0]
+        split_msg = msg.split(" ")
+        command_2 = split_msg[0]
+        command = command_2.replace("\n", "").strip()#eliminar salto de linea y espacios del mensaje . replace y .strip
         termcolor.cprint(f"{command} command", "green")
 
-        if msg == "PING":
+        if command == "PING":
             response = f"ok!\n"
 
         elif command == "GET":
-            arg = int(split[1])
+            arg = int(split_msg[1])
             gen = gen_list[arg]
-            seq = seq()
+            seq1 = seq() #llamar seq1
             file = os.path.join(".", "sequences", f"{gen}")#para que entre a la folder etc para todos los sistems operativos
-            seq.read_fasta(file)
-            response = f"{seq}\n"
+            seq1.read_fasta(file)
+            response = f"{seq1}\n"
 
 
         elif command == "INFO":
-            arg = split[1]
+            arg = split_msg[1]
             sequence = seq(arg)
             response = f"{sequence.porcentages()}"
 
         elif command == "COMP":
-            arg = split[1]
+            arg = split_msg[1]
             sequence = seq(arg)
             response = f"{sequence.seq_complement()}"
 
         elif command == "GENE":
-            arg = split[1]
-            seq = seq()
+            arg = split_msg[1]
+            seq1 = seq() #aqui lo mismo
             file = os.path.join(".", "sequences", f"{arg}")
-            seq.read_fasta(file)
-            response = f"{seq}\n"
+            seq1.read_fasta(file)
+            response = f"{seq1}\n"
 
         elif command == "REV":
-            arg = split[1]
+            arg = split_msg[1]
             sequence = seq(arg)
             response = f"{sequence.seq_reverse()}"
 

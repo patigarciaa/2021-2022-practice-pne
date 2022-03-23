@@ -18,7 +18,7 @@ for i in range(5):
 c.debug(f"INFO {seq_test}")
 c.debug(f"COMP {seq_test}")
 c.debug(f"REV {seq_test}")
-for i in gene_list:
+for i in gen_list:
     c.debug(f"GENE {i}")
 
 
