@@ -35,7 +35,7 @@ try:
         elif command == "GET":
             arg = int(split_msg[1])
             gen = gen_list[arg]
-            seq1 = seq() #llamar seq1
+            seq1 = seq() #llamar seq1 porque confunde la clase con la variable
             file = os.path.join(".", "sequences", f"{gen}")#para que entre a la folder etc para todos los sistems operativos
             seq1.read_fasta(file)
             response = f"{seq1}\n"
@@ -53,7 +53,7 @@ try:
 
         elif command == "GENE":
             arg = split_msg[1]
-            seq1 = seq() #aqui lo mismo
+            seq1 = seq() #aqui lo mismo porque confunde la clase con la variable
             file = os.path.join(".", "sequences", f"{arg}")
             seq1.read_fasta(file)
             response = f"{seq1}\n"

@@ -1,15 +1,21 @@
 from seq1 import seq
 list_genes = ["U5", "FRAT1", "ADA", "FXN", "RNU6_269P"]
-FOLDER = "../session04/"
+FOLDER = "./sequences/"
 for i in list_genes:
     filename = FOLDER + i
-    from pathlib import Path
-    file_contents = Path(filename).read_text()
-    lines = file_contents.splitlines()
-    body = lines[1:]
-    strbases = body
-    for k, v in body.count_bases().items():
-        print(k + ":", v)
+    seq1 = seq()
+    seq1.read_fasta(filename)
+    frequent = None
+    for k, v in seq1.count_bases().items():
+        if frequent:
+            if v > frequent[1]:
+                frequent = (k, v)
+        else:
+            frequent = (k, v)
+    print(f"Most frequent base in {i} is: {frequent}")
+
+
+
 
 
 
