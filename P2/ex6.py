@@ -27,7 +27,7 @@ c.talk(f"Sending gen {gen} to the server, in fragments of ten bases...")
 number1 = 0
 number2 = n_2
 n_1 = 10
-for b in range(1,n_1 + 1):#este range no me dice cuantas bases cjo si no cuantos grupos de 10 hago es decir 10 (1-11) y esto lo sabe por frag = empty...etc
+for b in range(1,n_1 + 1):#este range no me dice cuantas bases cojo si no cuantos grupos de 10 hago es decir 10 (1-11) y esto lo sabe por frag = empty...etc
     frag = empty_seq.bases[number1:number2] #bases va a ser las bases del gen si no pongo bases me va a dar null
     print(f"frag{b}: {frag}")
     number1 += n_2 #esto es para saltar de grupo en grupo

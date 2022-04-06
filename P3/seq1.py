@@ -79,6 +79,17 @@ class seq: #los metodos no tienen por que return, cuando cambiamos atributos de 
             porcentage += f"{k}: {v} ({(v * 100) / self.len()}%)\n"
         return porcentage
 
+    def number(self):
+        result = 1
+        complement = {"A": 2, "C": -1, "G": 3, "T": 5}
+        for k,v in complement.items():
+            result *= v
+        return result
+
+
+
+
+
 
 
 

@@ -64,6 +64,16 @@ try:
             sequence = seq(arg)
             response = f"{sequence.seq_reverse()}"
 
+        elif command == "MULT":
+            arg = split_msg[1].replace("\n", "").strip()
+            sequence = seq(arg)
+            response = f"{sequence.number()}"
+
+
+
+
+
+
         print(response)
 
         cs.send(response.encode())
