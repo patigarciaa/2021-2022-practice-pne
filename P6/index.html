@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <h1>Seq2 Server</h1>
+    <p>Access to the server</p>
+    <hr>
+    <form action="/ping">
+    Is the server alive: <input type="submit" value="PING">
+    </form>
+    <hr>
+    <form action="/get"/>
+    Get a sequence. Select a sequence number
+        <select name="n_sequence">
+            {% for n in range(0,context.n_sequences)%}
+            <option value={{n}}>{{n}}</option>
+            {% end for %}
+        </select>
+        <input type="submit" value="GET">
+    </form>
+    <hr>
+    <form action="/gene"/>
+    Get a sequence. Select a sequence number
+        <select name="gene_name">
+            {% for g in context.genes %}
+            <option value={{g}}>{{g}}</option>
+            {% end for %}
+        </select>
+        <input type="submit" value="GENE">
+    </form>
+       <form action="/operation"/>
+
+
+        <select name="gene_name">
+            {% for g in context.genes %}
+            <option value={{g}}>{{g}}</option>
+            {% end for %}
+        </select>
+        <input type="submit" value="OPERATE">
+    </form>
+</head> #no poner rev poner operation
+#cuando pasas la seq de info al html te sldra todo en la misma linea, no va a funcionar usar \n (solo funciona en terminal, porque
+#porque s etiene que usar html fomt
+<body>
+
+</body>
+</html>

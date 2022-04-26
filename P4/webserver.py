@@ -43,6 +43,8 @@ def process_client(s):
         body = pathlib.Path("G.html").read_text()
     elif route == "/info/T":
         body = pathlib.Path("T.html").read_text()
+    elif route == "/favicon.ico":
+        body = pathlib.Path("mainpage.html").read_text()
     else:
         body = pathlib.Path("error.html").read_text
 
