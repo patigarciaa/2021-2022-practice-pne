@@ -4,7 +4,7 @@ import termcolor
 from pathlib import Path
 import jinja2 as j
 from urllib.parse import parse_qs, urlparse
-
+from seq1 import seq
 HTML_FOLDER = "./html/"
 LIST_SEQUENCES = ["ACGTCCAGTAAA", "ACGTAGTTTTTAAACCC", "GGGTAAACTACG",
                   "CGTAGTACGTA", "TGCATGCCGAT", "ATATATATATATATATATA"]
@@ -27,18 +27,18 @@ def count_bases(seq):
     return d
 
 
-def convert_message(base_count):
+def convert_message(base_count): #lo convertimos a string para mandarlo al html
     message = ""
     for k,v in base_count.items():
-        message += k + ": " + str(v[0]) + " (" + str(v[1]) + "%)" +"\n"
+        message += k + ": " + str(v[0]) + " (" + str(v[1]) + "%)" +"<br>"
     return message
 
-def info_operation(arg):
+def info_operation(arg): #aqui el arg va a ser lo que pongamos despues en operation
     base_count = count_bases(arg)
     response = "<p> Sequence: " + arg + "</p>"
     response += "<p> Total length: " + str(len(arg)) + "</p>"
     response += convert_message(base_count)
-    return response
+    return response #todo esto es para ahorrar tiempo y poner los headers tal cual ya directamente
 
 # Define the Server's port
 PORT = 8086
@@ -72,17 +72,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             contents = read_html_file("index.html")\
                 .render(context=
                         {"n_sequences": len(LIST_SEQUENCES),
-                         "genes": LIST_GENES})
+                         "genes": LIST_GENES}) #pasamos jinja (formato de json) a texto tal cual con el render
+
         elif path == "/ping":
-            contents = read_html_file(path[1:] + ".html").render()
+            contents = read_html_file(path[1:] + ".html").render() #con esto nos quitamos el / del /ping (nuestro path = endpoint)
+            #y asi el programa entiende ping.html que es mi pagina html de ping abriendola
+
         elif path == "/get":
-            n_sequence = int(arguments["n_sequence"][0])
-            sequence = LIST_SEQUENCES[n_sequence]
+            n_sequence = int(arguments["n_sequence"][0]) #en este curso le damos un valor a una key, en vez de varios, por eso siempre es 0
+            #VIP pasar a int porque si no luego en el siguiente paso no va a entender lo que le pido
+            sequence = LIST_SEQUENCES[n_sequence] #pido la sequencia en la posicion_sequence que es un numero
             contents = read_html_file(path[1:] + ".html")\
                 .render(context = {
                 "n_sequence": n_sequence,
                 "sequence": sequence
-            })
+            }) #lo mismo de antes del render
+
         elif path == "/gene":
             gene_name = arguments["gene_name"][0]
             sequence = Path("./sequences/" + gene_name + ".txt").read_text()
@@ -91,20 +96,28 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 "gene_name": gene_name,
                 "sequence": sequence
             })
+
         elif path == "/operation":
             sequence = arguments["sequence"][0]
             operation = arguments["operation"][0]
+            s = seq(sequence) #pasamos por la funcion el sequence que viene a ser lo que va meter el usuario
             if operation == "rev":
                 contents = read_html_file(path[1:] + ".html") \
                     .render(context={
                     "operation": operation,
-                    "result": seq.reverse()
+                    "result": s.seq_reverse()
                 })
             elif operation == "info":
                 contents = read_html_file(path[1:] + ".html") \
                     .render(context={
                     "operation": operation,
                     "result": info_operation(sequence)
+                })
+            elif operation == "comp":
+                contents = read_html_file(path[1:] + ".html") \
+                    .render(context={
+                    "operation": operation,
+                    "result": s.seq_complement()
                 })
         else:
             contents = "I am the happy server! :-)"

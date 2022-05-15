@@ -14,6 +14,7 @@ def process_client(s):
     req = req_raw.decode()
 
     print("Message FROM CLIENT: ")
+    print(req)
 
     # -- Split the request messages into lines
     lines = req.split('\n')
@@ -34,7 +35,7 @@ def process_client(s):
     # -- Let's start with the body
     route = req_line.split(" ")[1]
     if route == "/":
-        body = pathlib.Path("mainpage.html").read_text
+        body = pathlib.Path("mainpage.html").read_text()
     elif route == "/info/A":
         body = pathlib.Path("A.html").read_text()
     elif route == "/info/C":
@@ -46,7 +47,7 @@ def process_client(s):
     elif route == "/favicon.ico":
         body = pathlib.Path("mainpage.html").read_text()
     else:
-        body = pathlib.Path("error.html").read_text
+        body = pathlib.Path("error.html").read_text()
 
     # -- Status line: We respond that everything is ok (200 code)
     status_line = "HTTP/1.1 200 OK\n"

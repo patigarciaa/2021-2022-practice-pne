@@ -29,8 +29,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             body = pathlib.Path("mainpage.html").read_text()
         else:
             try:
+                route = route.split("/")[-1]
+                print("ROUTE:", route)
                 filename = str(route) + ".html"
                 body = pathlib.Path(filename.strip("/")).read_text()
+                print("BODY:", body)
             except FileNotFoundError:
                 body = pathlib.Path("error.html").read_text()
 
