@@ -29,9 +29,22 @@ SERVER = 'rest.ensembl.org'
 
 def request_ensembli(endpoint, params=""):
     conn = http.client.HTTPConnection(SERVER)
+
+    #para el problema de los url con el json content type separado etc, se me ocurre crear un nuevo argumento
+    #en la funcion, llamada parameters y dejar puesto en la funcion lo siguiente:
+    #def request_ensembli(endpoint, parameters,params="")
+    #always_parameters = "?content-type=application/json"
+    #parameters_cal = parameters.split(=)
+    #parameters_calc1 = parameters_calc[0]
+    # parameters_calc2 = parameters_calc[1]
+    #final parameter = parameters_calc1 + "=" + "text/plain"
+    #luego en el elif pondria:
+    #dict_answer = request_ensembli("endpoint"+ gene_cal, final_parameter, "")
+    #y algo asi parecido con el otro
+
     try:
         parameters = "?content-type=application/json"
-        conn.request("GET", SERVER+endpoint+params+ parameters)
+        conn.request("GET",endpoint+parameters+params)
     except ConnectionRefusedError:
         print("ERROR! Cannot connect to the Server")
         exit()
@@ -39,7 +52,6 @@ def request_ensembli(endpoint, params=""):
     print(f"Response received!: {r1.status} {r1.reason}\n")
     data1 = r1.read().decode("utf-8")
     data2 = json.loads(data1)
-    print("data:", data2)
     return data2
 
 
@@ -110,25 +122,87 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             limit = int(arguments["limit"][0])
             print("limit:", limit)
             dict_answer = request_ensembli("/info/species","")
-            print("dict answer:", dict_answer)
             list_species = dict_answer["species"]
-            list_species2 = list_species[0:limit]
-            print("dict answer:", dict_answer)
-            contents = read_html_file(path[1:] + ".html").render(context={"species": list_species2}) #con esto nos quitamos el / del /ping (nuestro path = endpoint)
+            longuitud = len(list_species)
+            list_species2 = []
+            for i in range(0,limit):
+                list_species2.append(list_species[i]["common_name"])
+            contents = read_html_file(path[1:] + ".html").render(context={"species": list_species2,
+                                                                          "number": longuitud,
+                                                                          "limit": limit})
+            #con esto nos quitamos el / del /ping (nuestro path = endpoint)
             #y asi el programa entiende ping.html que es mi pagina html de ping abriendola
 
         elif path == "/karyotype":
-            species2 = int(arguments["species2"][0]) #en este curso le damos un valor a una key, en vez de varios, por eso siempre es 0
+            species2 = arguments["species2"][0] #me da human
+            print("specie:", species2)
+            print("type:", type(species2))
+            dict_answer = request_ensembli("/info/assembly/"+ species2, "")
+            print("dict:", dict_answer)
+            list_karyo = dict_answer["karyotype"]
+            print("list:", list_karyo)
+            contents = read_html_file(path[1:] + ".html")\
+                .render(context={"karyotype": list_karyo})
+            #en este curso le damos un valor a una key, en vez de varios, por eso siempre es 0
             #VIP pasar a int porque si no luego en el siguiente paso no va a entender lo que le pido
              #pido la sequencia en la posicion_sequence que es un numero
-            contents = read_html_file(path[1:] + ".html")\
-                .render() #lo mismo de antes del render
 
         elif path == "/chromosomeLength":
             species3 = arguments["species3"][0]
             chromosome = arguments["chromosome"][0]
+            dict_answer = request_ensembli("/info/assembly/" + species3, "")
+            length = ""
+            list_karyotype = dict_answer["karyotype"] #lista a secas
+            print("list karyotype:", list_karyotype)
+            list_all = dict_answer["top_level_region"] #lista de diccionarios
+            print("list all:", list_all)
+            for chromo in list_all:
+                if chromo['name'] == chromosome:
+                    length = chromo['length']
+            print("chromo:", length)
             contents = read_html_file(path[1:] + ".html") \
-                .render()
+                .render(context={"chromosome": length})
+
+            #medium level
+        elif path == "/geneSeq":
+            gene_seq = arguments["gene_seq"][0]
+            dict_answer = request_ensembli("/homology/symbol/human/"+ gene_seq, "") #la unica key que tiene es data
+            info = dict_answer["data"] #info es un lista de diccionarios
+            seq_dna = ""
+            info2 = []
+            for d in info:
+                for dict in d["homologies"]:
+                    info2.append(dict["source"])
+                    for value in info2:
+                        seq_dna = value["align_seq"]
+            contents = read_html_file(path[1:] + ".html") \
+                .render(context={"seq": seq_dna})
+
+        elif path == "/geneInfo": #terminar
+            gen_info = arguments["gen_info"][0]
+            dict_answer = request_ensembli("/lookup/id/"+gen_info, "")
+            print("dict:", dict_answer)
+            contents = read_html_file(path[1:] + ".html") \
+                .render(context={})
+
+
+        elif path == "/geneCalc":
+            gene_calc = arguments["gene_calc"][0]
+            dict_answer = request_ensembli("/sequence/id/"+gene_calc, "")
+            print("dict:", dict_answer)
+            contents = read_html_file(path[1:] + ".html") \
+                .render(context={})
+
+
+        elif path == "/geneList":
+            gene_list = arguments["gene_list"][0]
+            start_limit = arguments["start_limit"][0]
+            end_limit = arguments["end_limit"][0]
+            endpoint1 = gene_list + ":" + start_limit + "-" + end_limit
+            dict_answer = request_ensembli("/overlap/region/human/"+endpoint1, ";feature=gene;feature=transcript;feature=cds;feature=exon")
+            print("dict:", dict_answer)
+            contents = read_html_file(path[1:] + ".html") \
+                .render(context={"gene": gene_list})
 
         else:
             contents = read_html_file("error.html") \
