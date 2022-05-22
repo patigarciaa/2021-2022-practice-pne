@@ -27,21 +27,14 @@ HTML_FOLDER = "./html/"
 PORT = 8080
 SERVER = 'rest.ensembl.org'
 
+genes_dict = {"FRAT1": "ENSG00000165879", "ADA": "ENSG00000196839",
+              "FXN": "ENSG00000165060", "RNU6_269P": "ENSG00000212379", "MIR633": "ENSG00000207552",
+              "TTTY4C": "ENSG00000228296","RBMY2YP": "ENSG00000227633", "FGFR3": "ENSG00000068078",
+              "KDR": "ENSG00000128052", "ANK2": "ENSG00000145362"}
+
 def request_ensembli(endpoint, params=""):
     conn = http.client.HTTPConnection(SERVER)
-
-    #para el problema de los url con el json content type separado etc, se me ocurre crear un nuevo argumento
-    #en la funcion, llamada parameters y dejar puesto en la funcion lo siguiente:
-    #def request_ensembli(endpoint, parameters,params="")
-    #always_parameters = "?content-type=application/json"
-    #parameters_cal = parameters.split(=)
-    #parameters_calc1 = parameters_calc[0]
-    # parameters_calc2 = parameters_calc[1]
-    #final parameter = parameters_calc1 + "=" + "text/plain"
-    #luego en el elif pondria:
-    #dict_answer = request_ensembli("endpoint"+ gene_cal, final_parameter, "")
-    #y algo asi parecido con el otro
-
+    #request_ensembli("/listSpecies", "&json=1")
     try:
         parameters = "?content-type=application/json"
         conn.request("GET",endpoint+parameters+params)
@@ -114,35 +107,42 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         print("The new path is", url_path.path)
         print("arguments", arguments)
         # Message to send back to the client
+
         if self.path == "/":
             contents = read_html_file("index.html")\
                 .render() #pasamos jinja a texto tal cual con el render
 
-        elif path == "/listSpecies":
-            limit = int(arguments["limit"][0])
-            print("limit:", limit)
-            dict_answer = request_ensembli("/info/species","")
-            list_species = dict_answer["species"]
-            longuitud = len(list_species)
-            list_species2 = []
-            for i in range(0,limit):
-                list_species2.append(list_species[i]["common_name"])
-            contents = read_html_file(path[1:] + ".html").render(context={"species": list_species2,
-                                                                          "number": longuitud,
-                                                                          "limit": limit})
+        elif path == "/listSpecies": #poner una excepcion si pone un valor mayor que 311
+            try:
+                limit = int(arguments["limit"][0])
+                print("limit:", limit)
+                dict_answer = request_ensembli("/info/species","")
+                list_species = dict_answer["species"]
+                longuitud = len(list_species)
+                list_species2 = []
+                for i in range(0,limit):
+                    list_species2.append(list_species[i]["common_name"])
+                context = {"species": list_species2,
+                            "number": longuitud,
+                            "limit": limit}
+                contents = read_html_file(path[1:] + ".html").render(context=context)
+            except ValueError:
+                contents = read_html_file("error.html") \
+                    .render()
             #con esto nos quitamos el / del /ping (nuestro path = endpoint)
             #y asi el programa entiende ping.html que es mi pagina html de ping abriendola
 
         elif path == "/karyotype":
-            species2 = arguments["species2"][0] #me da human
-            print("specie:", species2)
-            print("type:", type(species2))
-            dict_answer = request_ensembli("/info/assembly/"+ species2, "")
-            print("dict:", dict_answer)
-            list_karyo = dict_answer["karyotype"]
-            print("list:", list_karyo)
-            contents = read_html_file(path[1:] + ".html")\
-                .render(context={"karyotype": list_karyo})
+            try:
+                species2 = arguments["species2"][0] #me da human
+                dict_answer = request_ensembli("/info/assembly/"+ species2, "")
+                list_karyo = dict_answer["karyotype"]
+                contents = read_html_file(path[1:] + ".html")\
+                    .render(context={"karyotype": list_karyo})
+            except KeyError:
+                contents = read_html_file("error.html") \
+                    .render()
+
             #en este curso le damos un valor a una key, en vez de varios, por eso siempre es 0
             #VIP pasar a int porque si no luego en el siguiente paso no va a entender lo que le pido
              #pido la sequencia en la posicion_sequence que es un numero
@@ -152,46 +152,51 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             chromosome = arguments["chromosome"][0]
             dict_answer = request_ensembli("/info/assembly/" + species3, "")
             length = ""
-            list_karyotype = dict_answer["karyotype"] #lista a secas
-            print("list karyotype:", list_karyotype)
-            list_all = dict_answer["top_level_region"] #lista de diccionarios
-            print("list all:", list_all)
-            for chromo in list_all:
-                if chromo['name'] == chromosome:
-                    length = chromo['length']
-            print("chromo:", length)
+            level_region = dict_answer["top_level_region"] #lista a secas
+            print("list:", level_region)
+            for d in level_region:
+                if d['coord_system'] == "chromosome" and d["name"] == chromosome:
+                    length += str(d['length'])
+                    print("chromo:", length)
             contents = read_html_file(path[1:] + ".html") \
                 .render(context={"chromosome": length})
 
             #medium level
         elif path == "/geneSeq":
-            gene_seq = arguments["gene_seq"][0]
-            dict_answer = request_ensembli("/homology/symbol/human/"+ gene_seq, "") #la unica key que tiene es data
-            info = dict_answer["data"] #info es un lista de diccionarios
-            seq_dna = ""
-            info2 = []
-            for d in info:
-                for dict in d["homologies"]:
-                    info2.append(dict["source"])
-                    for value in info2:
-                        seq_dna = value["align_seq"]
-            contents = read_html_file(path[1:] + ".html") \
-                .render(context={"seq": seq_dna})
+            try:
+                gene_seq = arguments["gene_seq"][0] #esto va  ser tipo FRAT1
+                stable_id = genes_dict[gene_seq]
+                dict_answer = request_ensembli("/sequence/id/"+ stable_id, "")
+                info = dict_answer["seq"]
+                contents = read_html_file(path[1:] + ".html") \
+                    .render(context={"seq": info})
+            except KeyError:
+                contents = read_html_file("error.html") \
+                    .render()
 
         elif path == "/geneInfo": #terminar
-            gen_info = arguments["gen_info"][0]
-            dict_answer = request_ensembli("/lookup/id/"+gen_info, "")
-            print("dict:", dict_answer)
+            gene_info = arguments["gene_info"][0] #va a ser FRAT1
+            stable_id = genes_dict[gene_info]
+            dict_answer = request_ensembli("/sequence/id/"+stable_id, ";expand=1")
+            info = dict_answer["desc"]
+            split_info = info.split(":")
+            gene_start = int(split_info[3])
+            gene_end = int(split_info[4])
+            length = gene_end - gene_start
             contents = read_html_file(path[1:] + ".html") \
-                .render(context={})
+                .render(context={"start": gene_start, "end": gene_end ,  "length":length, "name": gene_info,"id": stable_id})
+            #"start":, "end": ,  "length":
 
 
         elif path == "/geneCalc":
             gene_calc = arguments["gene_calc"][0]
-            dict_answer = request_ensembli("/sequence/id/"+gene_calc, "")
+            stable_id = genes_dict[gene_calc]
+            dict_answer = request_ensembli("/sequence/id/"+stable_id, "")
+            seq_given = dict_answer["seq"]
+            s = seq(seq_given)
             print("dict:", dict_answer)
             contents = read_html_file(path[1:] + ".html") \
-                .render(context={})
+                .render(context={"length": s.len(), "bases": count_bases(seq_given), "seq": gene_calc})
 
 
         elif path == "/geneList":
@@ -212,6 +217,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(200) # -- Status line: OK!
 
         # Define the content-type header:
+        #if "json" in arguments.keys() -> contents = json.dumps(context), content_type = application/json
+        #else content_type = "text/html"
         self.send_header('Content-Type', 'text/html')
         self.send_header('Content-Length', len(contents.encode()))
 
