@@ -141,13 +141,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     contents = read_html_file("error.html") \
                         .render()
-
             except KeyError:
+                dict_answer = request_ensembli("/info/species", "")
+                list_species = dict_answer["species"]
+                longuitud = len(list_species)
+                list3 = []
+                for i in range(0, int(longuitud)):
+                    list3.append(list_species[i]["common_name"])
                 if "json" in arguments:
-                    contents = {"error": "You got a key error, the limit you enter is incorrect."}
+                    contents = {"all": list3}
                 else:
-                    contents = read_html_file("error.html") \
-                        .render()
+                    contents = read_html_file(path[1:] + ".html").render(context={"all": list3})
 
 
             #con esto nos quitamos el / del /ping (nuestro path = endpoint)
