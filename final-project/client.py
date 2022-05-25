@@ -33,6 +33,8 @@ def request_server(endpoint, params=""):
             print("THERE WERE SOME CONNECTION PROBLEMS, TRY AGAIN LATER")
     except http.client.InvalidURL:
         print({"error": "THE URL COULD NOT BE FORMED, CHECK THE ENDPOINT AND PARAMS. THEY CAN NOT HAVE SPACES."})
+    except json.decoder.JSONDecodeError:
+        print({"error": "You did not include the json param, so you are asking for an html page, if you want to get the information, you should go to the browser."})
 
 #basic
 termcolor.cprint("THE LIST IS:", "green")
@@ -41,7 +43,7 @@ print(data_list_species)
 
 
 termcolor.cprint("THE KARYOTYPE IS:", "green")
-data_karyotype = request_server("/karyotype?", "species2= human&json=1")
+data_karyotype = request_server("/karyotype?", "species2=human&json=1")
 print(data_karyotype)
 
 
