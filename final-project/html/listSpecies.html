@@ -2,20 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>List Species</title>
+    <title>Basic-service-1</title>
 </head>
-<body>
+<body style="background-color:lavender;">
 <h1>List Species</h1>
-The total number of species on the ensembli is: {{context.number}}
-</p>
-The limit you have selected is: {{context.limit}}
-</p>
-The names of the species are:
-{% for s in context.species
-%}
-<p>{{s}}</p>
-
-{% endfor %}
+<ul>
+<li>The total number of species on the ensembli is: {{context.number}}</li>
+<br>
+<li>The limit you have selected is: {{context.limit}}</li>
+<br>
+</ul>
+<ul>
+    <li>The names of the species are:
+        <ol>
+        {% for s in context.species
+        %}
+        <li><p>{{s}}</p>
+        {% endfor %}
+        </ol>
+        <br>
+        {{context.message}}
+        </ul>
 
 
     <p>  </p>

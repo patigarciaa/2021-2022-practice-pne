@@ -1,18 +1,3 @@
-#do_get(self):
-    #-get url with urlparse
-    #-get arguments with parse_qs
-
-#-THE BIG IF
-#example:
-    #if path == "list_species":
-        #SERVER = ""
-        #ENDPOINT = ""
-        #PARAMS = ""
-
-        #HACER FUNCION Y METER DENTRO DE ESTA everything LO DE JSON ETC Y PONER RETURN DATA2 (EL DICT DE JASON) PONER EXCEPTIONES
-        #A veces en el en los params puedes y debes mter varios params pones un & y añades el otro
-        #poner como arg endpoint y params y añadir este param al PARAMS MEDIANTES UN +
-
 import http.server
 import socketserver
 import termcolor
@@ -22,10 +7,43 @@ from urllib.parse import parse_qs, urlparse
 from seq1 import seq
 import json
 import http.client
+import socket
+import os
 
 HTML_FOLDER = "./html/"
-PORT = 8081
+PORT = 8080
 SERVER = 'rest.ensembl.org'
+ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+IP = "127.0.0.1"
+
+try:
+    ls.bind((IP, PORT))
+    ls.listen()
+    print("The server is configured!")
+
+    while True:
+        print("Waiting for Clients to connect")
+        (cs, client_ip_port) = ls.accept()
+        print("A client has connected to the server!")
+
+        msg_raw = cs.recv(2048)
+        msg = msg_raw.decode()
+
+        print(f"Message received: {msg}")
+        response = ""
+
+        split_msg = msg.split(" ")
+        command_2 = split_msg[0]
+        command = command_2.replace("\n", "").strip()#eliminar salto de linea y espacios del mensaje . replace y .strip
+        termcolor.cprint(f"{command} command", "green")
+except Exception as e:
+    print(e)
+
+except KeyboardInterrupt:
+    print("server stopped by the admin")
+    ls.close()  # ls es el socket del server
+
 
 genes_dict = {"FRAT1": "ENSG00000165879", "ADA": "ENSG00000196839",
               "FXN": "ENSG00000165060", "RNU6_269P": "ENSG00000212379", "MIR633": "ENSG00000207552",
@@ -37,7 +55,7 @@ def request_ensembli(endpoint, params=""):
     #request_ensembli("/listSpecies", "&json=1")
     try:
         parameters = "?content-type=application/json"
-        conn.request("GET", endpoint+parameters+params)
+        conn.request("GET",endpoint+parameters+params)
     except ConnectionRefusedError:
         print("ERROR! Cannot connect to the Server")
         exit()
@@ -106,13 +124,34 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         print("The old path was", self.path)
         print("The new path is", url_path.path)
         print("arguments", arguments)
-        # Message to send back to the client
 
+
+        ls.bind((IP, PORT))
+        ls.listen()
+        print("The server is configured!")
+
+
+        print("Waiting for Clients to connect")
+        (cs, client_ip_port) = ls.accept()
+        print("A client has connected to the server!")
+
+        msg_raw = cs.recv(2048)
+        msg = msg_raw.decode()
+
+        print(f"Message received: {msg}")
+        response = ""
+
+        split_msg = msg.split(" ")
+        command_2 = split_msg[0]
+        command = command_2.replace("\n","").strip()  # eliminar salto de linea y espacios del mensaje . replace y .strip
+        termcolor.cprint(f"{command} command", "green")
+
+        # Message to send back to the client
         if self.path == "/":
             contents = read_html_file("index.html")\
                 .render() #pasamos jinja a texto tal cual con el render
 
-        elif path == "/listSpecies": #poner una excepcion si pone un valor mayor que 311
+        elif path == "/listSpecies":
             try:
                 limit = int(arguments["limit"][0])
                 print("limit:", limit)
@@ -126,13 +165,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     message = ""
                     for i in range(0,limit):
                         list_species2.append(list_species[i]["common_name"])
-                try:
-                    if "json" in arguments:
-                        contents = {"species": list_species2,
-                                    "number": longuitud,
-                                    "limit": limit}
-                except ValueError:
-                    print({"error": "Value error. You have to introduce an interger."})
+                if "json" in arguments:
+                    contents = {"species": list_species2,
+                                "number": longuitud,
+                                "limit": limit}
+
+                elif command == "listSpecies":
+                    contents = {"species": list_species2,
+                                "number": longuitud,
+                                "limit": limit}
+                    response = f"{contents}\n"
                 else:
                     contents = read_html_file(path[1:] + ".html").render(context={"species": list_species2,
                                 "number": longuitud,
@@ -140,11 +182,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             except ValueError:
                 contents = read_html_file("error.html") \
                     .render()
-            except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
-
-
             #con esto nos quitamos el / del /ping (nuestro path = endpoint)
             #y asi el programa entiende ping.html que es mi pagina html de ping abriendola
 
@@ -208,7 +245,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = read_html_file("error.html") \
                     .render()
 
-        elif path == "/geneInfo":
+
+
+        elif path == "/geneInfo": #terminar
             try:
                 gene_info = arguments["gene_info"][0] #va a ser FRAT1
                 stable_id = genes_dict[gene_info]
@@ -283,13 +322,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         #if "json" in arguments.keys() -> contents = json.dumps(context), content_type = application/json
         #else content_type = "text/html"
 
+        print(response)
+
+        cs.send(response.encode())
+        cs.close()  # cs es el client socket
+
         if "json" in arguments.keys():
             contents = json.dumps(contents)
             self.send_header('Content-Type', 'application/json')
-
         else:
             self.send_header('Content-Type', 'text/html')
-        self.send_header('Content-Length', len(contents.encode()))
+            self.send_header('Content-Length', len(contents.encode()))
 
         # The header is finished
         self.end_headers()

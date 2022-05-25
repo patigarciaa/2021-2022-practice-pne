@@ -21,6 +21,7 @@ try:
 
         msg_raw = cs.recv(2048)
         msg = msg_raw.decode()
+        print("the msg is:", msg)
         print(f"Message received: {msg}")
         response = ""
 

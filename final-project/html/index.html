@@ -8,6 +8,7 @@
 <h1>BROWSING HUMAN AND VERTEBRATES GENOME</h1>
 <h1>Basic level services</h1>
 <p>Access to the server</p>
+<body style="background-color:bisque;">
     <hr>
 <form action="/listSpecies">
         1)List of species in the genome database
@@ -15,8 +16,12 @@
 
         Limit: <input type="text" name="limit">
         </p>
-        <input type="submit" value="Send">
+      Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
  </form>
+
+
     <hr>
 <form action="/karyotype">
     </p>
@@ -24,9 +29,13 @@
         </p>
         Select species: <input type="text" name="species2">
         </p>
-        <input type="submit" value="Send">
+      Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
     </p>
  </form>
+
+
     <hr>
 <form action="/chromosomeLength">
     3)Chromosome length
@@ -35,42 +44,58 @@
         </p>
         Select a chromosome: <input type="text" name="chromosome">
         </p>
-        <input type="submit" value="Send">
-        </p>
+         Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
+    </p>
+
      </form>
+
+
+
     <hr>
-
-
 <form action="/geneSeq">
     4)Gene sequence
         </p>
         Select human gene: <input type="text" name="gene_seq">
         </p>
-        <input type="submit" value="Send">
+         Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
         </p>
      </form>
-    <hr>
 
+
+
+    <hr>
 <form action="/geneInfo">
     5)Gene Information
         </p>
         Select human gene: <input type="text" name="gene_info">
         </p>
-        <input type="submit" value="Send">
+         Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
         </p>
      </form>
-    <hr>
 
+
+
+    <hr>
 <form action="/geneCalc">
     6)Gene calculations
         </p>
         Select human gene: <input type="text" name="gene_calc">
         </p>
-        <input type="submit" value="Send">
+         Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
         </p>
      </form>
-    <hr>
 
+
+
+    <hr>
 <form action="/geneList">
     7)Gene List
         </p>
@@ -80,9 +105,13 @@
             </p>
         Select end: <input type="text" name="end_limit">
             </p>
-            <input type="submit" value="Send">
+             Would you like it on json format? <input type="checkbox" name=json>
+      </p>
+      <input type="submit" value="SEND">
             </p>
      </form>
+
+
     <hr>
 </body>
 </html>

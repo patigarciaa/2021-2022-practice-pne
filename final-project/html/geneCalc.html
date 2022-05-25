@@ -5,13 +5,13 @@
     <title>GENE CALCULATIONS</title>
 </head>
 <h1>Gene calculations</h1>
-<body>
+<body style="background-color:lightcyan;">
 The length of the sequence is : {{context.length}}
-</p>
+<br>
 {% for s in context.bases
 %}
 <p> The number of times that the base {{s}} appears in {{context.seq}} is: {{context.bases[s][0]}} and its porcentage is: {{context.bases[s][1]}}% </p>
 {% endfor %}
-  <a href="http://localhost:63342/2021-2022-practice-pne/final-project/html/index.html?_ijt=g1ul3d4bf1ns1qbh48oiu8r9ne&_ij_reload=RELOAD_ON_SAVE">Main page</a>
+  <a href="/">Main page</a>
 </body>
 </html>
