@@ -100,7 +100,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         path = url_path.path #con esto coges la tupla que te ha dado el urlparse y le dices que quieres solo el path
         #es decir el endpoint
         print("QUERY:", url_path.query)#es un string
-        arguments = parse_qs(url_path.query) #url_path.query te da  desde la ? hasta el final en forma de string,
+        arguments = parse_qs(url_path.query)#url_path.query te da  desde la ? hasta el final en forma de string,
         # parse_qs devuelve diccionario con keys y los values
         #puestos en una list, en nuestro caso la lista solo tiene 1 elemento siempre, por eso ponemos la posicion 0 siempre
         print("The old path was", self.path)
@@ -114,7 +114,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif path == "/listSpecies": #poner una excepcion si pone un valor mayor que 311
             try:
-                limit = int(arguments["limit"][0])
+                limit = int(arguments["limit"][0].strip())
                 print("limit:", limit)
                 dict_answer = request_ensembli("/info/species","")
                 list_species = dict_answer["species"]
@@ -126,23 +126,28 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     message = ""
                     for i in range(0,limit):
                         list_species2.append(list_species[i]["common_name"])
-                try:
-                    if "json" in arguments:
-                        contents = {"species": list_species2,
-                                    "number": longuitud,
-                                    "limit": limit}
-                except ValueError:
-                    print({"error": "Value error. You have to introduce an interger."})
+
+                if "json" in arguments:
+                    contents = {"species": list_species2,
+                                "number": longuitud,
+                                "limit": limit}
                 else:
                     contents = read_html_file(path[1:] + ".html").render(context={"species": list_species2,
                                 "number": longuitud,
                                 "limit": limit, "message": message})
             except ValueError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a Value error, the limit you enter should be an interger."}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
+
             except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a key error, the limit you enter is incorrect."}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
 
 
             #con esto nos quitamos el / del /ping (nuestro path = endpoint)
@@ -151,7 +156,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif path == "/karyotype":
             try:
-                species2 = arguments["species2"][0] #me da human
+                species2 = arguments["species2"][0].strip() #me da human
                 dict_answer = request_ensembli("/info/assembly/"+ species2, "")
                 list_karyo = dict_answer["karyotype"]
                 if "json" in arguments:
@@ -160,8 +165,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file(path[1:] + ".html")\
                         .render(context={"karyotype": list_karyo})
             except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a key error, the parameters entered are incorrect or we do not have information about them."}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
 
             #en este curso le damos un valor a una key, en vez de varios, por eso siempre es 0
             #VIP pasar a int porque si no luego en el siguiente paso no va a entender lo que le pido
@@ -169,8 +177,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         elif path == "/chromosomeLength":
             try:
-                species3 = arguments["species3"][0]
-                chromosome = arguments["chromosome"][0]
+                species3 = arguments["species3"][0].strip()
+                chromosome = arguments["chromosome"][0].strip()
                 dict_answer = request_ensembli("/info/assembly/" + species3, "")
                 length = ""
                 try:
@@ -184,18 +192,24 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         contents = read_html_file(path[1:] + ".html") \
                             .render(context={"chromosome": length})
                 except KeyError:
+                    if "json" in arguments:
+                        contents = {"error": "You got a key error, the specie selected or chromosome is incorrect."}
+                    else:
                         contents = read_html_file("error.html") \
-                        .render()
+                            .render()
             except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a key error, check if the parameters are correct."}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
 
 
 
             #medium level
         elif path == "/geneSeq":
             try:
-                gene_seq = arguments["gene_seq"][0] #esto va  ser tipo FRAT1
+                gene_seq = arguments["gene_seq"][0].strip() #esto va  ser tipo FRAT1
                 stable_id = genes_dict[gene_seq]
                 dict_answer = request_ensembli("/sequence/id/"+ stable_id, "")
                 info = dict_answer["seq"]
@@ -205,12 +219,15 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file(path[1:] + ".html") \
                         .render(context={"seq": info})
             except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a key error, the parameter entered does not exist in the following list: FRAT1, ADA, FXN, RNU6_269P, MIR633, TTTY4C, RBMY2YP, FGFR3, KDR, ANK2"}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
 
         elif path == "/geneInfo":
             try:
-                gene_info = arguments["gene_info"][0] #va a ser FRAT1
+                gene_info = arguments["gene_info"][0].strip() #va a ser FRAT1
                 stable_id = genes_dict[gene_info]
                 dict_answer = request_ensembli("/sequence/id/"+stable_id, "")
                 info = dict_answer["desc"]
@@ -224,13 +241,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file(path[1:] + ".html") \
                         .render(context={"start": gene_start, "end": gene_end ,  "length":length, "name": gene_info,"id": stable_id})
             except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a key error,the parameter entered does not exist in the following list: FRAT1, ADA, FXN, RNU6_269P, MIR633, TTTY4C, RBMY2YP, FGFR3, KDR, ANK2."}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
 
 
         elif path == "/geneCalc":
             try:
-                gene_calc = arguments["gene_calc"][0]
+                gene_calc = arguments["gene_calc"][0].strip()
                 stable_id = genes_dict[gene_calc]
                 dict_answer = request_ensembli("/sequence/id/"+stable_id, "")
                 seq_given = dict_answer["seq"]
@@ -242,15 +262,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file(path[1:] + ".html") \
                         .render(context={"length": s.len(), "bases": count_bases(seq_given), "seq": gene_calc})
             except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
+                if "json" in arguments:
+                    contents = {"error": "You got a key error,the parameter entered does not exist in the following list: FRAT1, ADA, FXN, RNU6_269P, MIR633, TTTY4C, RBMY2YP, FGFR3, KDR, ANK2."}
+                else:
+                    contents = read_html_file("error.html") \
+                        .render()
 
 
         elif path == "/geneList":
             try:
-                gene_list = arguments["gene_list"][0] #el chromo que quiero
-                start_limit = arguments["start_limit"][0] #donde empiezo
-                end_limit = arguments["end_limit"][0] #donde acabo
+                gene_list = arguments["gene_list"][0].strip() #el chromo que quiero
+                start_limit = arguments["start_limit"][0].strip() #donde empiezo
+                end_limit = arguments["end_limit"][0].strip() #donde acabo
                 endpoint2 = gene_list + ":" + start_limit + "-" + end_limit
                 dict_answer = request_ensembli("/phenotype/region/homo_sapiens/"+endpoint2, ";feature_type=Variation")
                 list_genes = []
@@ -266,11 +289,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     else:
                         contents = read_html_file(path[1:] + ".html").render(context={"gene": list_genes})
                 except TypeError:
+                    if "json" in arguments:
+                        contents = {"error": "You got a Type error."}
+                    else:
+                        contents = read_html_file("error.html") \
+                            .render()
+            except KeyError:
+                if "json" in arguments:
+                    contents = {"error": "You got a Key error, we can not find the chromosome, start or end limit you are asking for. NOTE: They all should be intergers."}
+                else:
                     contents = read_html_file("error.html") \
                         .render()
-            except KeyError:
-                contents = read_html_file("error.html") \
-                    .render()
 
         else:
             contents = read_html_file("error.html") \

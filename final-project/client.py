@@ -15,52 +15,61 @@ c = client(IP, PORT)
 print(c)
 
 def request_server(endpoint, params=""):
-    conn = http.client.HTTPConnection(IP, PORT)
     try:
-        conn.request("GET", endpoint+params)
-    except ConnectionRefusedError:
-        print("ERROR! Cannot connect to the Server")
-        exit()
-    r1 = conn.getresponse()
-    print(f"Response received!: {r1.status} {r1.reason}\n")
-    if r1.status == 200:
-        data1 = r1.read().decode("utf-8")
-        data2 = json.loads(data1)
-        return data2
-    else:
-        print("THERE WER SOME CONNECTION PROBLEMS, TRY AGAIN LATER")
+        conn = http.client.HTTPConnection(IP, PORT)
+        try:
+            conn.request("GET", endpoint+params)
+        except ConnectionRefusedError:
+            print("ERROR! Cannot connect to the Server")
+            exit()
+
+        r1 = conn.getresponse()
+        print(f"Response received!: {r1.status} {r1.reason}\n")
+        if r1.status == 200:
+            data1 = r1.read().decode("utf-8")
+            data2 = json.loads(data1)
+            return data2
+        else:
+            print("THERE WERE SOME CONNECTION PROBLEMS, TRY AGAIN LATER")
+    except http.client.InvalidURL:
+        print("THE URL COULD NOT BE FORMED, CHECK THE ENDPOINT AND PARAMS. THEY CAN NOT HAVE SPACES.")
 
 #basic
-data_list_species = request_server("/listSpecies?","limit=a&json=on")
 termcolor.cprint("THE LIST IS:", "green")
+data_list_species = request_server("/listSpecies?","limit=10&json=1")
 print(data_list_species)
 
 
-data_karyotype = request_server("/karyotype?", "species2=human&json=on")
 termcolor.cprint("THE KARYOTYPE IS:", "green")
+data_karyotype = request_server("/karyotype?", "species2= human&json=on")
 print(data_karyotype)
 
-data_chromolength = request_server("/chromosomeLength?", "species3=human&chromosome=1&json=on")
+
 termcolor.cprint("THE LENGTH IS:", "green")
+data_chromolength = request_server("/chromosomeLength?", "species3=human&chromosome=1&json=on")
 print(data_chromolength)
 
+
+
 #medium
-data_seq = request_server("/geneSeq?", "gene_seq=FRAT1&json=on") #que pasa si mete un espacio
 termcolor.cprint("THE SEQUENCE IS:", "green")
+data_seq = request_server("/geneSeq?", "gene_seq=FRAT1&json=on") #que pasa si mete un espacio
 print(data_seq)
 
-data_info = request_server("/geneInfo?", "gene_info=FRAT1&json=on")
+
+
 termcolor.cprint("THE INFO IS:", "green")
+data_info = request_server("/geneInfo?", "gene_info=FRAT1&json=on")
 print(data_info)
 
 
-data_calc = request_server("/geneCalc?", "gene_calc=FRAT1&json=on")
 termcolor.cprint("THE CALCULATIONS ARE:", "green")
+data_calc = request_server("/geneCalc?", "gene_calc=FRAT1&json=on")
 print(data_calc)
 
 
-data_list = request_server("/geneList?", "gene_list=9&start_limit=22125500&end_limit=22136000&json=on")
 termcolor.cprint("THE LIST IS:", "green")
+data_list = request_server("/geneList?", "gene_list=9&start_limit=22125500&end_limit=22136000&json=on")
 print(data_list)
 
 
